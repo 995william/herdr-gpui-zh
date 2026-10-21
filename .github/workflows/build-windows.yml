@@ -1,0 +1,40 @@
+name: Build Windows Client (Chinese)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+      - zh-cn
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build herdr-gpui Windows x64
+    runs-on: windows-2025
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display Rust toolchain
+        run: rustup show
+
+      - name: Build release binaries
+        env:
+          HERDR_RELEASE_VERSION: "20261020.1"
+          HERDR_WINDOWS_SIGNER: ""
+        run: |
+          cargo build --locked --release -p herdr-gpui -p herdr-gpui-launcher --target x86_64-pc-windows-msvc
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Herdr-UI-Windows-x64-Chinese
+          path: |
+            target/x86_64-pc-windows-msvc/release/herdr-gpui.exe
+            target/x86_64-pc-windows-msvc/release/herdr-gpui-launcher.exe
+          if-no-files-found: error
+          retention-days: 30
